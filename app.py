@@ -1,0 +1,1003 @@
+import streamlit as st
+import pandas as pd
+import plotly.express as px
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+import numpy as np
+from datetime import datetime, timedelta
+import warnings
+warnings.filterwarnings('ignore')
+
+# Sahifa konfiguratsiyasi
+st.set_page_config(
+    page_title="Import Analytics Dashboard",
+    page_icon="📊",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
+# CSS stillar
+st.markdown("""
+<style>
+    .main-header {
+        font-size: 2.5rem;
+        font-weight: bold;
+        text-align: center;
+        color: #1f77b4;
+        margin-bottom: 2rem;
+    }
+    .section-header {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #2c3e50;
+        margin: 1rem 0;
+        padding: 0.5rem;
+        background-color: #ecf0f1;
+        border-radius: 5px;
+    }
+    .metric-card {
+        background-color: #f8f9fa;
+        padding: 1rem;
+        border-radius: 10px;
+        border-left: 4px solid #007bff;
+        margin: 0.5rem 0;
+    }
+    .sidebar .sidebar-content {
+        background-color: #f1f3f4;
+    }
+    .login-container {
+        max-width: 450px;
+        margin: 3rem auto;
+        padding: 3rem;
+        background: #0e1117;
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        color: white;
+        text-align: center;
+        border: 1px solid #333;
+    }
+    .login-title {
+        font-size: 2.8rem;
+        font-weight: bold;
+        margin-bottom: 2rem;
+        color: #1f77b4;
+    }
+    .login-form {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 2rem;
+        border-radius: 15px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .login-input {
+        background: rgba(255, 255, 255, 0.9) !important;
+        border: none !important;
+        border-radius: 10px !important;
+        padding: 15px !important;
+        margin: 10px 0 !important;
+        color: #333 !important;
+        font-size: 16px !important;
+    }
+    .login-button {
+        background: linear-gradient(45deg, #4CAF50, #45a049) !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 10px !important;
+        padding: 15px 30px !important;
+        font-size: 16px !important;
+        font-weight: bold !important;
+        cursor: pointer !important;
+        transition: all 0.3s ease !important;
+        width: 100% !important;
+        margin-top: 1rem !important;
+    }
+    .login-button:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 10px 20px rgba(76, 175, 80, 0.3) !important;
+    }
+    .stTextInput > div > div > input {
+        background: rgba(255, 255, 255, 0.9);
+        border: none;
+        border-radius: 10px;
+        padding: 15px;
+        color: #333;
+        font-size: 16px;
+    }
+    .stButton > button {
+        background: linear-gradient(45deg, #4CAF50, #45a049);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        padding: 15px 30px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        width: 100%;
+        margin-top: 1rem;
+    }
+    .stButton > button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(76, 175, 80, 0.3);
+    }
+    /* Streamlit elementlarini yashirish */
+    .stDeployButton {display:none;}
+    footer {visibility: hidden;}
+    .stDecoration {display:none;}
+</style>
+""", unsafe_allow_html=True)
+
+# Parol tekshirish funksiyasi
+def check_password():
+    """Parol va kod bilan kirish sistemasi"""
+    
+    if "password_correct" not in st.session_state:
+        st.session_state["password_correct"] = False
+
+    if st.session_state["password_correct"]:
+        return True
+
+    # Login form
+    st.markdown("""
+    <div class="login-container">
+        <div class="login-title">📊 Import Analytics Dashboard</div>
+        <div class="login-form">
+    """, unsafe_allow_html=True)
+    
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        st.markdown("#### 🔐 Xavfsiz kirish")
+        st.markdown("**Tizimga kirish uchun ma'lumotlarni kiriting:**")
+        
+        # Parol kiritish
+        password = st.text_input(
+            "Parol", 
+            type="password", 
+            placeholder="Parolni kiriting...",
+            key="password_input"
+        )
+        
+        # Maxfiy kod kiritish
+        secret_code = st.text_input(
+            "Maxfiy kod",
+            type="password",
+            placeholder="Maxfiy kodni kiriting...",
+            key="code_input"
+        )
+        
+        if st.button("🚀 Tizimga kirish"):
+            if password == "admin123" and secret_code == "2025":
+                st.session_state["password_correct"] = True
+                st.success("✅ Muvaffaqiyatli kirildi!")
+                st.rerun()
+            else:
+                st.error("❌ Parol yoki maxfiy kod noto'g'ri!")
+                st.warning("💡 To'g'ri ma'lumotlarni kiriting")
+    
+    st.markdown("</div></div>", unsafe_allow_html=True)
+    return False
+
+# Agar parol noto'g'ri bo'lsa, dashboardni ko'rsatmaslik
+if not check_password():
+    st.stop()
+
+# Ma'lumotlarni yuklash funksiyasi
+@st.cache_data
+def load_data(file):
+    try:
+        if file.name.endswith('.csv'):
+            df = pd.read_csv(file)
+        else:
+            df = pd.read_excel(file)
+        
+        # Sana ustunini o'zgartirish
+        df['INSTIME'] = pd.to_datetime(df['INSTIME'], format='%d.%m.%Y %H:%M:%S', errors='coerce')
+        
+        # Raqamli ustunlarni tekshirish
+        df['G38'] = pd.to_numeric(df['G38'], errors='coerce')
+        df['PRICE'] = pd.to_numeric(df['PRICE'], errors='coerce')
+        
+        # NaN qiymatlarni tozalash
+        df = df.dropna(subset=['G34', 'G33', 'PRICE', 'INSTIME'])
+        
+        return df
+    except Exception as e:
+        st.error(f"Fayl yuklashda xatolik: {str(e)}")
+        return None
+
+# Demo ma'lumotlar yaratish
+def create_demo_data():
+    np.random.seed(42)
+    dates = pd.date_range(start='2024-01-01', end='2024-12-31', freq='D')
+    
+    countries = ['USA', 'CHN', 'DEU', 'TUR', 'RUS', 'KOR', 'JPN', 'IND']
+    hs_codes = ['8517', '8471', '8473', '8528', '8544', '8536', '8537', '8542']
+    
+    data = []
+    for _ in range(1000):
+        date = np.random.choice(dates)
+        country = np.random.choice(countries)
+        hs_code = np.random.choice(hs_codes)
+        weight = np.random.uniform(10, 1000)
+        price = np.random.uniform(5, 100)
+        
+        # Candlestick uchun OHLC ma'lumotlari
+        open_price = price
+        high_price = price * np.random.uniform(1.0, 1.1)
+        low_price = price * np.random.uniform(0.9, 1.0)
+        close_price = np.random.uniform(low_price, high_price)
+        
+        data.append({
+            'G34': country,
+            'G33': hs_code,
+            'G38': weight,
+            'PRICE': price,
+            'OPEN': open_price,
+            'HIGH': high_price,
+            'LOW': low_price,
+            'CLOSE': close_price,
+            'INSTIME': date
+        })
+    
+    return pd.DataFrame(data)
+
+# Asosiy sarlavha
+st.markdown('<div class="main-header">📊 Import Analytics Dashboard</div>', unsafe_allow_html=True)
+
+# Logout button
+col1, col2, col3 = st.columns([5, 1, 1])
+with col3:
+    if st.button("🚪 Chiqish"):
+        st.session_state["password_correct"] = False
+        st.rerun()
+
+# Sidebar - TAHLIL TURLARI
+st.sidebar.header("📊 TAHLIL TURLARI")
+st.sidebar.markdown("---")
+
+# Ma'lumotlarni olish
+if 'uploaded_file' not in st.session_state:
+    st.session_state.uploaded_file = None
+
+# Markaziy qism - Fayl yuklash va filtrlar
+st.markdown("### 📁 Fayl yuklash va filtrlar")
+
+# Faqat fayl yuklash
+st.markdown("**Faylni yuklash:**")
+uploaded_file = st.file_uploader(
+    "",
+    type=['csv', 'xlsx', 'xls'],
+    help="G34, G33, G38, PRICE, INSTIME ustunlari bo'lishi kerak",
+    key="main_file_uploader"
+)
+
+# Ma'lumotlarni olish
+if uploaded_file is not None:
+    df = load_data(uploaded_file)
+    if df is None:
+        st.stop()
+else:
+    st.info("Demo ma'lumotlar ishlatilmoqda")
+    df = create_demo_data()
+
+# FILTRLAR bo'limi - katta buttonlar yonma-yon
+st.markdown("### 🔍 FILTRLAR")
+
+# Filtr buttonlari uchun 3 ustun
+col1, col2, col3 = st.columns(3)
+
+with col1:
+    countries = ['Hammasi'] + sorted(df['G34'].unique().tolist())
+    selected_country = st.selectbox(
+        "34-GRAFA",
+        countries,
+        key="country_filter",
+        help="Kelib chiqish davlati"
+    )
+
+with col2:
+    hs_codes = ['Hammasi'] + sorted(df['G33'].unique().tolist())
+    selected_hs = st.selectbox(
+        "33-GRAFA", 
+        hs_codes,
+        key="hs_filter",
+        help="HS kodi"
+    )
+
+with col3:
+    # Qo'shimcha filtr - Vaqt oralig'i
+    date_range = st.selectbox(
+        "VAQT ORALIG'I",
+        ["Hammasi", "So'nggi 30 kun", "So'nggi 90 kun", "So'nggi yil"],
+        key="date_filter"
+    )
+
+# Ma'lumotlarni filtrlash
+filtered_df = df.copy()
+if selected_country != 'Hammasi':
+    filtered_df = filtered_df[filtered_df['G34'] == selected_country]
+if selected_hs != 'Hammasi':
+    filtered_df = filtered_df[filtered_df['G33'] == selected_hs]
+
+# Vaqt filtri
+if date_range != "Hammasi":
+    today = datetime.now()
+    if date_range == "So'nggi 30 kun":
+        start_date = today - timedelta(days=30)
+    elif date_range == "So'nggi 90 kun":
+        start_date = today - timedelta(days=90)
+    else:  # So'nggi yil
+        start_date = today - timedelta(days=365)
+    
+    filtered_df = filtered_df[filtered_df['INSTIME'] >= start_date]
+
+st.markdown("---")
+
+# Asosiy ko'rsatkichlar
+col1, col2, col3, col4 = st.columns(4)
+with col1:
+    st.metric("Jami yozuvlar", len(filtered_df))
+with col2:
+    st.metric("O'rtacha narx", f"${filtered_df['PRICE'].mean():.2f}")
+with col3:
+    st.metric("Eng yuqori narx", f"${filtered_df['PRICE'].max():.2f}")
+with col4:
+    st.metric("Eng past narx", f"${filtered_df['PRICE'].min():.2f}")
+
+# Sidebar da bo'limlar tanlash
+st.sidebar.header("📈 BO'LIMLAR")
+sections = ["CANDLESTICK", "YIELD CURVES", "GRAFIK", "USTUNLI DIAGRAMMA", "HISTOGRAM", "SUNBURST", "TIME GROUP"]
+selected_section = st.sidebar.radio("Bo'limni tanlang:", sections)
+
+# CANDLESTICK BO'LIMI
+if selected_section == "CANDLESTICK":
+    st.markdown('<div class="section-header">🕯️ CANDLESTICK - Professional Bojxona Qiymatlari Tahlili</div>', unsafe_allow_html=True)
+    
+    if len(filtered_df) > 0:
+        # Ma'lumot haqida qisqacha info
+        col1, col2, col3, col4, col5 = st.columns(5)
+        with col1:
+            current_price = filtered_df['PRICE'].iloc[-1]
+            st.metric("Joriy narx", f"${current_price:.2f}")
+        with col2:
+            price_change = filtered_df['PRICE'].iloc[-1] - filtered_df['PRICE'].iloc[-2] if len(filtered_df) > 1 else 0
+            st.metric("O'zgarish", f"${price_change:.2f}", f"{price_change:.2f}")
+        with col3:
+            st.metric("Hajm", f"{filtered_df['G38'].sum():.0f}")
+        with col4:
+            st.metric("Kun maksimumi", f"${filtered_df['PRICE'].max():.2f}")
+        with col5:
+            st.metric("Kun minimumi", f"${filtered_df['PRICE'].min():.2f}")
+        
+        # Kunlik ma'lumotlarni agregatsiya qilish
+        if 'OPEN' in filtered_df.columns:
+            daily_agg = filtered_df.groupby(filtered_df['INSTIME'].dt.date).agg({
+                'OPEN': 'first',
+                'HIGH': 'max', 
+                'LOW': 'min',
+                'CLOSE': 'last',
+                'G38': 'sum'  # Hajm uchun
+            }).reset_index()
+            daily_agg['INSTIME'] = pd.to_datetime(daily_agg['INSTIME'])
+            daily_agg = daily_agg.sort_values('INSTIME')
+        else:
+            # PRICE dan OHLC yaratish
+            daily_agg = filtered_df.groupby(filtered_df['INSTIME'].dt.date).agg({
+                'PRICE': ['first', 'max', 'min', 'last'],
+                'G38': 'sum'
+            }).reset_index()
+            daily_agg.columns = ['INSTIME', 'OPEN', 'HIGH', 'LOW', 'CLOSE', 'G38']
+            daily_agg['INSTIME'] = pd.to_datetime(daily_agg['INSTIME'])
+            daily_agg = daily_agg.sort_values('INSTIME')
+        
+        # Professional Candlestick Chart
+        fig = make_subplots(
+            rows=2, cols=1,
+            shared_xaxes=True,
+            vertical_spacing=0.05,
+            row_heights=[0.7, 0.3],
+            subplot_titles=('Bojxona Qiymatlari (OHLC)', 'Hajm')
+        )
+        
+        # Candlestick chart
+        fig.add_trace(
+            go.Candlestick(
+                x=daily_agg['INSTIME'],
+                open=daily_agg['OPEN'],
+                high=daily_agg['HIGH'],
+                low=daily_agg['LOW'],
+                close=daily_agg['CLOSE'],
+                name="OHLC",
+                increasing_line_color='#00ff00',  # Yashil
+                decreasing_line_color='#ff0000',  # Qizil
+                increasing_fillcolor='rgba(0,255,0,0.7)',
+                decreasing_fillcolor='rgba(255,0,0,0.7)'
+            ),
+            row=1, col=1
+        )
+        
+        # Moving averages qo'shish
+        if len(daily_agg) >= 20:
+            daily_agg['MA20'] = daily_agg['CLOSE'].rolling(window=20).mean()
+            fig.add_trace(
+                go.Scatter(
+                    x=daily_agg['INSTIME'],
+                    y=daily_agg['MA20'],
+                    mode='lines',
+                    name='MA20',
+                    line=dict(color='blue', width=1)
+                ),
+                row=1, col=1
+            )
+        
+        if len(daily_agg) >= 50:
+            daily_agg['MA50'] = daily_agg['CLOSE'].rolling(window=50).mean()
+            fig.add_trace(
+                go.Scatter(
+                    x=daily_agg['INSTIME'],
+                    y=daily_agg['MA50'],
+                    mode='lines',
+                    name='MA50',
+                    line=dict(color='orange', width=1)
+                ),
+                row=1, col=1
+            )
+        
+        # Volume bars
+        colors = ['green' if daily_agg['CLOSE'].iloc[i] >= daily_agg['OPEN'].iloc[i] else 'red' 
+                  for i in range(len(daily_agg))]
+        
+        fig.add_trace(
+            go.Bar(
+                x=daily_agg['INSTIME'],
+                y=daily_agg['G38'],
+                name="Hajm",
+                marker_color=colors,
+                opacity=0.7
+            ),
+            row=2, col=1
+        )
+        
+        # Layout sozlamalari
+        fig.update_layout(
+            title={
+                'text': f"Bojxona Qiymatlari Professional Tahlil - Joriy: ${current_price:.2f}",
+                'x': 0.5,
+                'xanchor': 'center',
+                'font': {'color': 'white', 'size': 16}
+            },
+            height=800,
+            showlegend=True,
+            xaxis_rangeslider_visible=False,
+            plot_bgcolor='#0e1117',
+            paper_bgcolor='#0e1117',
+            font=dict(color='white'),
+            legend=dict(
+                font=dict(color='white'),
+                bgcolor='rgba(0,0,0,0)'
+            )
+        )
+        
+        # X va Y o'qlarini sozlash
+        fig.update_xaxes(
+            showgrid=True,
+            gridwidth=1,
+            gridcolor='#333',
+            zeroline=False,
+            color='white',
+            row=1, col=1
+        )
+        fig.update_xaxes(
+            showgrid=True,
+            gridwidth=1,
+            gridcolor='#333',
+            zeroline=False,
+            color='white',
+            title_text="Sana",
+            row=2, col=1
+        )
+        fig.update_yaxes(
+            showgrid=True,
+            gridwidth=1,
+            gridcolor='#333',
+            zeroline=False,
+            color='white',
+            title_text="Narx ($)",
+            tickformat='$,.0f',
+            row=1, col=1
+        )
+        fig.update_yaxes(
+            showgrid=True,
+            gridwidth=1,
+            gridcolor='#333',
+            zeroline=False,
+            color='white',
+            title_text="Hajm",
+            tickformat=',.0f',
+            row=2, col=1
+        )
+        
+        st.plotly_chart(fig, use_container_width=True)
+        
+        # Technical indicators
+        st.subheader("📈 Texnik Ko'rsatkichlar")
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            # RSI calculation (simplified)
+            if len(daily_agg) >= 14:
+                price_diff = daily_agg['CLOSE'].diff()
+                gain = price_diff.where(price_diff > 0, 0).rolling(window=14).mean()
+                loss = (-price_diff.where(price_diff < 0, 0)).rolling(window=14).mean()
+                rs = gain / loss
+                rsi = 100 - (100 / (1 + rs))
+                current_rsi = rsi.iloc[-1]
+                st.metric("RSI (14)", f"{current_rsi:.1f}")
+                
+                if current_rsi > 70:
+                    st.error("🔴 Overbought (Sotish signali)")
+                elif current_rsi < 30:
+                    st.success("🟢 Oversold (Sotib olish signali)")
+                else:
+                    st.info("🟡 Neytral zona")
+        
+        with col2:
+            # Bollinger Bands
+            if len(daily_agg) >= 20:
+                ma20 = daily_agg['CLOSE'].rolling(window=20).mean()
+                std20 = daily_agg['CLOSE'].rolling(window=20).std()
+                upper_band = ma20 + (std20 * 2)
+                lower_band = ma20 - (std20 * 2)
+                
+                current_price = daily_agg['CLOSE'].iloc[-1]
+                current_upper = upper_band.iloc[-1]
+                current_lower = lower_band.iloc[-1]
+                
+                st.metric("Bollinger Yuqori", f"${current_upper:.2f}")
+                st.metric("Bollinger Pastki", f"${current_lower:.2f}")
+                
+                if current_price > current_upper:
+                    st.error("🔴 Yuqori band ustida")
+                elif current_price < current_lower:
+                    st.success("🟢 Pastki band ostida")
+                else:
+                    st.info("🟡 Bandlar orasida")
+        
+        with col3:
+            # Volume analysis
+            avg_volume = daily_agg['G38'].mean()
+            current_volume = daily_agg['G38'].iloc[-1]
+            volume_ratio = current_volume / avg_volume
+            
+            st.metric("O'rtacha hajm", f"{avg_volume:.0f}")
+            st.metric("Joriy hajm", f"{current_volume:.0f}")
+            st.metric("Hajm nisbati", f"{volume_ratio:.1f}x")
+            
+            if volume_ratio > 1.5:
+                st.success("🟢 Yuqori hajm")
+            elif volume_ratio < 0.5:
+                st.warning("🟡 Past hajm")
+            else:
+                st.info("🔵 Normal hajm")
+        
+        # Price levels table
+        st.subheader("📊 Narx Darajalari")
+        price_levels = pd.DataFrame({
+            'Daraja': ['Joriy narx', 'Bugungi maksimum', 'Bugungi minimum', 'MA20', 'MA50'],
+            'Qiymat': [
+                f"${current_price:.2f}",
+                f"${daily_agg['HIGH'].iloc[-1]:.2f}",
+                f"${daily_agg['LOW'].iloc[-1]:.2f}",
+                f"${daily_agg['MA20'].iloc[-1]:.2f}" if 'MA20' in daily_agg.columns else "N/A",
+                f"${daily_agg['MA50'].iloc[-1]:.2f}" if 'MA50' in daily_agg.columns else "N/A"
+            ]
+        })
+        st.dataframe(price_levels, use_container_width=True)
+        
+    else:
+        st.warning("Tanlangan filtrlar bo'yicha ma'lumot topilmadi")
+
+# YIELD CURVES BO'LIMI
+elif selected_section == "YIELD CURVES":
+    st.markdown('<div class="section-header">📈 YIELD CURVES - Narx Egri Chiziqlari Tahlili</div>', unsafe_allow_html=True)
+    
+    if len(filtered_df) > 0:
+        # Ma'lumot haqida qisqacha info
+        col1, col2, col3, col4 = st.columns(4)
+        with col1:
+            max_price = filtered_df['PRICE'].max()
+            st.metric("Maksimal narx", f"${max_price:.2f}", "🟢")
+        with col2:
+            avg_price = filtered_df['PRICE'].mean()
+            st.metric("O'rtacha narx", f"${avg_price:.2f}", "🟡")
+        with col3:
+            min_price = filtered_df['PRICE'].min()
+            st.metric("Minimal narx", f"${min_price:.2f}", "🔵")
+        with col4:
+            price_range = max_price - min_price
+            st.metric("Narx diapazoni", f"${price_range:.2f}")
+        
+        # Vaqt davrlari bo'yicha ma'lumotlarni tayyorlash
+        periods = ['1M', '3M', '6M', '1Y', '2Y', '3Y', '5Y', '7Y', '10Y', '20Y']
+        
+        # Uch xil sana uchun ma'lumot yaratish
+        end_date = filtered_df['INSTIME'].max()
+        dates = [
+            end_date,
+            end_date - timedelta(days=30),
+            end_date - timedelta(days=365)
+        ]
+        
+        fig = go.Figure()
+        
+        # Har bir sana uchun yield curve yaratish
+        colors = ['#00ff00', '#ffa500', '#00bfff']  # Yashil, Sariq, Ko'k
+        curve_names = ['Maksimal', 'O\'rtacha', 'Minimal']
+        
+        for i, (date, color, name) in enumerate(zip(dates, colors, curve_names)):
+            # Har bir period uchun narxlarni hisoblash
+            if name == 'Maksimal':
+                base_price = max_price
+                multipliers = [0.95, 0.96, 0.97, 0.98, 0.99, 1.0, 1.01, 1.02, 1.03, 1.04]
+            elif name == 'O\'rtacha':
+                base_price = avg_price
+                multipliers = [0.98, 0.99, 0.995, 1.0, 1.005, 1.01, 1.015, 1.02, 1.025, 1.03]
+            else:  # Minimal
+                base_price = min_price
+                multipliers = [1.05, 1.04, 1.03, 1.02, 1.01, 1.0, 0.99, 0.98, 0.97, 0.96]
+            
+            prices = [base_price * mult for mult in multipliers]
+            
+            fig.add_trace(go.Scatter(
+                x=periods,
+                y=prices,
+                mode='lines+markers',
+                name=f'{name} - {date.strftime("%b %d, %Y")}',
+                line=dict(color=color, width=3),
+                marker=dict(size=8, color=color)
+            ))
+        
+        # Layout sozlamalari
+        fig.update_layout(
+            title={
+                'text': "Narx Egri Chiziqlari - Vaqt Davrlari Bo'yicha Tahlil",
+                'x': 0.5,
+                'xanchor': 'center',
+                'font': {'color': 'white', 'size': 18}
+            },
+            height=600,
+            plot_bgcolor='#0e1117',
+            paper_bgcolor='#0e1117',
+            font=dict(color='white', size=12),
+            xaxis=dict(
+                title="Vaqt Davri",
+                showgrid=True,
+                gridcolor='#333',
+                color='white'
+            ),
+            yaxis=dict(
+                title="Narx ($)",
+                showgrid=True,
+                gridcolor='#333',
+                color='white',
+                tickformat='$,.2f'
+            ),
+            legend=dict(
+                bgcolor='rgba(0,0,0,0.5)',
+                font=dict(color='white')
+            )
+        )
+        
+        st.plotly_chart(fig, use_container_width=True)
+        
+        # Jadval ma'lumotlari
+        st.subheader("📊 Batafsil Narx Jadvali")
+        
+        # Jadval yaratish
+        table_data = []
+        for period in periods:
+            if period == '1M':
+                max_val = max_price * 0.95
+                avg_val = avg_price * 0.98
+                min_val = min_price * 1.05
+            elif period == '3M':
+                max_val = max_price * 0.96
+                avg_val = avg_price * 0.99
+                min_val = min_price * 1.04
+            elif period == '6M':
+                max_val = max_price * 0.97
+                avg_val = avg_price * 0.995
+                min_val = min_price * 1.03
+            elif period == '1Y':
+                max_val = max_price * 0.98
+                avg_val = avg_price * 1.0
+                min_val = min_price * 1.02
+            elif period == '2Y':
+                max_val = max_price * 0.99
+                avg_val = avg_price * 1.005
+                min_val = min_price * 1.01
+            elif period == '3Y':
+                max_val = max_price * 1.0
+                avg_val = avg_price * 1.01
+                min_val = min_price * 1.0
+            elif period == '5Y':
+                max_val = max_price * 1.01
+                avg_val = avg_price * 1.015
+                min_val = min_price * 0.99
+            elif period == '7Y':
+                max_val = max_price * 1.02
+                avg_val = avg_price * 1.02
+                min_val = min_price * 0.98
+            elif period == '10Y':
+                max_val = max_price * 1.03
+                avg_val = avg_price * 1.025
+                min_val = min_price * 0.97
+            else:  # 20Y
+                max_val = max_price * 1.04
+                avg_val = avg_price * 1.03
+                min_val = min_price * 0.96
+            
+            table_data.append({
+                'Davr': period,
+                'Maksimal ($)': f"${max_val:.2f}",
+                'O\'rtacha ($)': f"${avg_val:.2f}",
+                'Minimal ($)': f"${min_val:.2f}"
+            })
+        
+        yield_df = pd.DataFrame(table_data)
+        st.dataframe(yield_df, use_container_width=True)
+        
+        # Tahlil
+        st.subheader("📈 Tahlil Xulosa")
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.info("""
+            **🟢 Maksimal Narx Trendi:**
+            - Qisqa muddatda pastroq
+            - Uzoq muddatda yuqori o'sish
+            - Investitsiya uchun yaxshi imkoniyat
+            """)
+            
+        with col2:
+            st.warning("""
+            **📊 Umumiy Xulosa:**
+            - Narxlar vaqt o'tishi bilan o'zgaruvchan
+            - Uzoq muddatli investitsiya samarali
+            - Risk boshqaruvi muhim
+            """)
+    else:
+        st.warning("Tanlangan filtrlar bo'yicha ma'lumot topilmadi")
+
+# GRAFIK BO'LIMI
+elif selected_section == "GRAFIK":
+    st.markdown('<div class="section-header">📈 GRAFIK - Vaqt bo\'yicha narx monitoring</div>', unsafe_allow_html=True)
+    
+    if len(filtered_df) > 0:
+        # Vaqt bo'yicha saralash
+        filtered_df_sorted = filtered_df.sort_values('INSTIME')
+        
+        fig = go.Figure()
+        
+        # Real narxlar
+        fig.add_trace(go.Scatter(
+            x=filtered_df_sorted['INSTIME'],
+            y=filtered_df_sorted['PRICE'],
+            mode='markers+lines',
+            name='Real narxlar',
+            line=dict(color='#1f77b4', width=2),
+            marker=dict(size=6)
+        ))
+        
+        # Statistik chiziqlar
+        max_price = filtered_df['PRICE'].max()
+        min_price = filtered_df['PRICE'].min()
+        mean_price = filtered_df['PRICE'].mean()
+        
+        # Eng yuqori narx
+        fig.add_hline(y=max_price, line_dash="dash", line_color="green", 
+                     annotation_text=f"Eng yuqori: ${max_price:.2f}")
+        
+        # Eng past narx
+        fig.add_hline(y=min_price, line_dash="dash", line_color="red",
+                     annotation_text=f"Eng past: ${min_price:.2f}")
+        
+        # O'rtacha narx
+        fig.add_hline(y=mean_price, line_dash="dash", line_color="orange",
+                     annotation_text=f"O'rtacha: ${mean_price:.2f}")
+        
+        fig.update_layout(
+            title="Bojxona qiymatlari vaqt bo'yicha",
+            xaxis_title="Vaqt",
+            yaxis_title="Narx ($)",
+            height=600,
+            showlegend=True,
+            yaxis=dict(tickformat='$,.2f')
+        )
+        
+        st.plotly_chart(fig, use_container_width=True)
+    else:
+        st.warning("Tanlangan filtrlar bo'yicha ma'lumot topilmadi")
+
+# USTUNLI DIAGRAMMA BO'LIMI
+elif selected_section == "USTUNLI DIAGRAMMA":
+    st.markdown('<div class="section-header">📊 USTUNLI DIAGRAMMA - HS kodlar bo\'yicha o\'rtacha narx</div>', unsafe_allow_html=True)
+    
+    if len(filtered_df) > 0:
+        # HS kodlar bo'yicha o'rtacha narx
+        hs_price_avg = filtered_df.groupby('G33')['PRICE'].mean().reset_index()
+        hs_price_avg = hs_price_avg.sort_values('PRICE', ascending=False)
+        
+        fig = px.bar(
+            hs_price_avg,
+            x='G33',
+            y='PRICE',
+            title="HS kodlar bo'yicha o'rtacha bojxona qiymati",
+            labels={'G33': 'HS Kod', 'PRICE': 'O\'rtacha narx ($)'},
+            color='PRICE',
+            color_continuous_scale='viridis'
+        )
+        
+        fig.update_layout(
+            height=600,
+            yaxis=dict(tickformat='$,.2f')
+        )
+        st.plotly_chart(fig, use_container_width=True)
+        
+        # Jadval ko'rinishi
+        st.subheader("📋 Batafsil ma'lumot")
+        st.dataframe(hs_price_avg.round(2))
+    else:
+        st.warning("Tanlangan filtrlar bo'yicha ma'lumot topilmadi")
+
+# HISTOGRAM BO'LIMI
+elif selected_section == "HISTOGRAM":
+    st.markdown('<div class="section-header">📉 HISTOGRAM - Narx taqsimoti</div>', unsafe_allow_html=True)
+    
+    if len(filtered_df) > 0:
+        fig = px.histogram(
+            filtered_df,
+            x='PRICE',
+            nbins=30,
+            title="Bojxona qiymatlarining taqsimoti",
+            labels={'PRICE': 'Narx ($)', 'count': 'Soni'},
+            color_discrete_sequence=['#1f77b4']
+        )
+        
+        # Statistik ma'lumotlar qo'shish
+        fig.add_vline(x=filtered_df['PRICE'].mean(), line_dash="dash", line_color="red",
+                     annotation_text=f"O'rtacha: ${filtered_df['PRICE'].mean():.2f}")
+        fig.add_vline(x=filtered_df['PRICE'].median(), line_dash="dash", line_color="green",
+                     annotation_text=f"Mediana: ${filtered_df['PRICE'].median():.2f}")
+        
+        fig.update_layout(
+            height=600,
+            xaxis=dict(tickformat='$,.2f')
+        )
+        st.plotly_chart(fig, use_container_width=True)
+        
+        # Statistik ma'lumotlar
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.metric("Standart og'ish", f"${filtered_df['PRICE'].std():.2f}")
+        with col2:
+            st.metric("Mediana", f"${filtered_df['PRICE'].median():.2f}")
+        with col3:
+            st.metric("Mod", f"${filtered_df['PRICE'].mode().iloc[0]:.2f}" if not filtered_df['PRICE'].mode().empty else "N/A")
+    else:
+        st.warning("Tanlangan filtrlar bo'yicha ma'lumot topilmadi")
+
+# SUNBURST BO'LIMI
+elif selected_section == "SUNBURST":
+    st.markdown('<div class="section-header">🌍 SUNBURST - Davlat va HS kodlar bo\'yicha ulush</div>', unsafe_allow_html=True)
+    
+    if len(filtered_df) > 0:
+        # Davlat va HS kodlar bo'yicha yig'indi qiymat
+        sunburst_data = filtered_df.groupby(['G34', 'G33'])['PRICE'].sum().reset_index()
+        
+        fig = px.sunburst(
+            sunburst_data,
+            path=['G34', 'G33'],
+            values='PRICE',
+            title="Davlat va HS kodlar bo'yicha bojxona qiymatlari ulushi"
+        )
+        
+        fig.update_layout(height=700)
+        st.plotly_chart(fig, use_container_width=True)
+        
+        # Treemap alternativasi
+        st.subheader("📦 Treemap ko'rinishi")
+        fig2 = px.treemap(
+            sunburst_data,
+            path=['G34', 'G33'],
+            values='PRICE',
+            title="Treemap - Davlat va HS kodlar bo'yicha ulush"
+        )
+        fig2.update_layout(height=600)
+        st.plotly_chart(fig2, use_container_width=True)
+    else:
+        st.warning("Tanlangan filtrlar bo'yicha ma'lumot topilmadi")
+
+# TIME GROUP BO'LIMI
+elif selected_section == "TIME GROUP":
+    st.markdown('<div class="section-header">🕒 TIME GROUP - Vaqtga asoslangan analiz</div>', unsafe_allow_html=True)
+    
+    if len(filtered_df) > 0:
+        # Vaqt gruppalarini tanlash
+        time_group = st.selectbox("Vaqt guruhi", ["Kunlik", "Haftalik", "Oylik"])
+        
+        if time_group == "Kunlik":
+            filtered_df['time_group'] = filtered_df['INSTIME'].dt.date
+        elif time_group == "Haftalik":
+            filtered_df['time_group'] = filtered_df['INSTIME'].dt.to_period('W').dt.start_time
+        else:  # Oylik
+            filtered_df['time_group'] = filtered_df['INSTIME'].dt.to_period('M').dt.start_time
+        
+        # Vaqt bo'yicha statistikalar
+        time_stats = filtered_df.groupby('time_group').agg({
+            'PRICE': ['mean', 'count', 'sum', 'min', 'max']
+        }).round(2)
+        
+        time_stats.columns = ['O\'rtacha narx', 'Soni', 'Jami qiymat', 'Min narx', 'Max narx']
+        time_stats = time_stats.reset_index()
+        
+        # Chiziqli grafik
+        fig = make_subplots(
+            rows=2, cols=1,
+            subplot_titles=("O'rtacha narx o'zgarishi", "Rasmiylashtirish soni"),
+            vertical_spacing=0.1
+        )
+        
+        # O'rtacha narx
+        fig.add_trace(
+            go.Scatter(
+                x=time_stats['time_group'],
+                y=time_stats['O\'rtacha narx'],
+                mode='lines+markers',
+                name='O\'rtacha narx',
+                line=dict(color='blue', width=3)
+            ),
+            row=1, col=1
+        )
+        
+        # Rasmiylashtirish soni
+        fig.add_trace(
+            go.Bar(
+                x=time_stats['time_group'],
+                y=time_stats['Soni'],
+                name='Rasmiylashtirish soni',
+                marker_color='lightblue'
+            ),
+            row=2, col=1
+        )
+        
+        fig.update_layout(height=800, showlegend=True)
+        fig.update_xaxes(title_text="Vaqt", row=2, col=1)
+        fig.update_yaxes(title_text="Narx ($)", tickformat='$,.2f', row=1, col=1)
+        fig.update_yaxes(title_text="Soni", row=2, col=1)
+        
+        st.plotly_chart(fig, use_container_width=True)
+        
+        # Jadval
+        st.subheader("📊 Vaqt bo'yicha statistika")
+        st.dataframe(time_stats)
+        
+        # Trend tahlili
+        if len(time_stats) > 1:
+            price_trend = time_stats['O\'rtacha narx'].iloc[-1] - time_stats['O\'rtacha narx'].iloc[0]
+            count_trend = time_stats['Soni'].iloc[-1] - time_stats['Soni'].iloc[0]
+            
+            col1, col2 = st.columns(2)
+            with col1:
+                trend_color = "green" if price_trend > 0 else "red"
+                st.markdown(f"**Narx trendi:** <span style='color:{trend_color}'>{price_trend:+.2f}$</span>", unsafe_allow_html=True)
+            with col2:
+                trend_color = "green" if count_trend > 0 else "red"
+                st.markdown(f"**Hajm trendi:** <span style='color:{trend_color}'>{count_trend:+}</span>", unsafe_allow_html=True)
+    else:
+        st.warning("Tanlangan filtrlar bo'yicha ma'lumot topilmadi")
+
+# Footer
+st.sidebar.markdown("---")
+st.sidebar.markdown("📊 **Import Analytics Dashboard**")
+st.sidebar.markdown("Tashkent, 2025")
+st.sidebar.markdown("Real vaqtda monitoring va tahlil")
