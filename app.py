@@ -10,7 +10,7 @@ warnings.filterwarnings('ignore')
 
 # Sahifa konfiguratsiyasi
 st.set_page_config(
-    page_title="Import Analytics Dashboard",
+    page_title="Customs Value Analytics",
     page_icon="📊",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -19,12 +19,16 @@ st.set_page_config(
 # CSS stillar
 st.markdown("""
 <style>
+    * {
+        font-family: Verdana, Geneva, Tahoma, sans-serif !important;
+    }
+    
     .main-header {
         font-size: 2.5rem;
         font-weight: bold;
         text-align: center;
         color: #1f77b4;
-        margin-bottom: 2rem;
+        margin-bottom: 1rem;
     }
     .section-header {
         font-size: 1.5rem;
@@ -59,26 +63,29 @@ st.markdown("""
     .login-title {
         font-size: 2.8rem;
         font-weight: bold;
-        margin-bottom: 2rem;
+        margin-bottom: 1rem;
         color: #1f77b4;
+    }
+    .login-subtitle {
+        font-size: 1.2rem;
+        margin-bottom: 0rem !important;
+        opacity: 0.8;
+        color: #ccc;
     }
     .login-form {
         background: rgba(255, 255, 255, 0.1);
         padding: 2rem;
         border-radius: 15px;
         border: 1px solid rgba(255, 255, 255, 0.2);
+        margin-top: 1rem;
     }
-    .login-input {
-        background: rgba(255, 255, 255, 0.9) !important;
-        border: none !important;
-        border-radius: 10px !important;
-        padding: 15px !important;
-        margin: 10px 0 !important;
-        color: #333 !important;
-        font-size: 16px !important;
-    }
-    .login-button {
-        background: linear-gradient(45deg, #4CAF50, #45a049) !important;
+    
+    /* Login tugmasi - yashil #08FF08 - KUCHLI SELECTOR */
+    .login-button button,
+    button[key="login_button"],
+    div[data-testid="stButton"] button:contains("Tizimga kirish"),
+    div[data-testid="stButton"] button:contains("🚀") {
+        background: #08FF08 !important;
         color: white !important;
         border: none !important;
         border-radius: 10px !important;
@@ -90,41 +97,188 @@ st.markdown("""
         width: 100% !important;
         margin-top: 1rem !important;
     }
-    .login-button:hover {
+    .login-button button:hover,
+    button[key="login_button"]:hover,
+    div[data-testid="stButton"] button:contains("Tizimga kirish"):hover,
+    div[data-testid="stButton"] button:contains("🚀"):hover {
+        background: #06CC06 !important;
         transform: translateY(-2px) !important;
-        box-shadow: 0 10px 20px rgba(76, 175, 80, 0.3) !important;
+        box-shadow: 0 10px 20px rgba(8, 255, 8, 0.3) !important;
     }
+    
+    /* TIZIMGA KIRISH buttoni uchun maxsus stil */
+    button[key="login_button"] {
+        background: #08FF08 !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 10px !important;
+        padding: 15px 30px !important;
+        font-size: 16px !important;
+        font-weight: bold !important;
+        cursor: pointer !important;
+        transition: all 0.3s ease !important;
+        width: 100% !important;
+        margin-top: 1rem !important;
+    }
+    button[key="login_button"]:hover {
+        background: #06CC06 !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 10px 20px rgba(8, 255, 8, 0.3) !important;
+    }
+    
+    /* Input maydonlari */
     .stTextInput > div > div > input {
-        background: rgba(255, 255, 255, 0.9);
-        border: none;
-        border-radius: 10px;
-        padding: 15px;
-        color: #333;
-        font-size: 16px;
+        background: rgba(255, 255, 255, 0.9) !important;
+        border: none !important;
+        border-radius: 10px !important;
+        padding: 15px !important;
+        color: #333 !important;
+        font-size: 16px !important;
     }
+    
+    /* Sidebar Button Styles - Professional Glowing Effect */
     .stButton > button {
-        background: linear-gradient(45deg, #4CAF50, #45a049);
-        color: white;
-        border: none;
-        border-radius: 10px;
-        padding: 15px 30px;
-        font-size: 16px;
-        font-weight: bold;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        width: 100%;
-        margin-top: 1rem;
+        width: 90% !important;
+        height: 60px !important;
+        border: none !important;
+        outline: none !important;
+        color: #fff !important;
+        background: #111 !important;
+        cursor: pointer !important;
+        position: relative !important;
+        z-index: 0 !important;
+        border-radius: 10px !important;
+        font-size: 16px !important;
+        font-weight: bold !important;
+        margin: 0.5rem 0 !important;
+        transition: all 0.3s ease !important;
     }
-    .stButton > button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 20px rgba(76, 175, 80, 0.3);
+
+    .stButton::before {
+        content: '' !important;
+        background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000) !important;
+        position: absolute !important;
+        top: -2px !important;
+        left: -2px !important;
+        background-size: 400% !important;
+        z-index: -1 !important;
+        filter: blur(5px) !important;
+        width: calc(95% + 4px) !important;
+        height: calc(100% + 7px) !important;
+        animation: glowing 20s linear infinite !important;
+        opacity: 0 !important;
+        transition: opacity .3s ease-in-out !important;
+        border-radius: 10px !important;
     }
+
+    .stButton:hover::before {
+        opacity: 1 !important;
+    }
+
+    .stButton::after {
+        z-index: -1 !important;
+        content: '' !important;
+        position: absolute !important;
+        width: 93% !important;
+        height: 100% !important;
+        background: #111 !important;
+        left: 0 !important;
+        top: 0 !important;
+        border-radius: 10px !important;
+    }
+
+    @keyframes glowing {
+        0% { background-position: 0 0; }
+        50% { background-position: 400% 0; }
+        100% { background-position: 0 0; }
+    }
+    
+    /* Chiqish tugmasi - qizil #FE0808 - KUCHLI SELECTOR */
+    .logout-btn button,
+    button[key="logout_btn"],
+    div[data-testid="stButton"] button:contains("Chiqish"),
+    div[data-testid="stButton"] button:contains("🚪") {
+        background: #FE0808 !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 10px !important;
+        padding: 10px 20px !important;
+        font-size: 14px !important;
+        font-weight: bold !important;
+        cursor: pointer !important;
+        transition: all 0.3s ease !important;
+        width: 100% !important;
+    }
+    .logout-btn button:hover,
+    button[key="logout_btn"]:hover,
+    div[data-testid="stButton"] button:contains("Chiqish"):hover,
+    div[data-testid="stButton"] button:contains("🚪"):hover {
+        background: #CC0606 !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 8px 16px rgba(254, 8, 8, 0.3) !important;
+    }
+    
+    /* CHIQISH buttoni uchun maxsus stil */
+    button[key="logout_btn"] {
+        background: #FE0808 !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 10px !important;
+        padding: 10px 20px !important;
+        font-size: 14px !important;
+        font-weight: bold !important;
+        cursor: pointer !important;
+        transition: all 0.3s ease !important;
+        width: 100% !important;
+    }
+    button[key="logout_btn"]:hover {
+        background: #CC0606 !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 8px 16px rgba(254, 8, 8, 0.3) !important;
+    }
+    
     /* Streamlit elementlarini yashirish */
-    .stDeployButton {display:none;}
-    footer {visibility: hidden;}
-    .stDecoration {display:none;}
+    .stDeployButton {display:none !important;}
+    footer {visibility: hidden !important;}
+    .stDecoration {display:none !important;}
+    .stToolbar {display:none !important;}
+    .stApp > header {display:none !important;}
+    .stMainMenu {display:none !important;}
+    header[data-testid="stHeader"] {display:none !important;}
+    div[data-testid="stToolbar"] {display:none !important;}
+    div[data-testid="stDecoration"] {display:none !important;}
+    div[data-testid="stStatusWidget"] {display:none !important;}
+    button[data-testid="baseButton-header"] {display:none !important;}
+    .css-14xtw13.e8zbici0 {display:none !important;}
+    .css-h5rgaw.egzxvld1 {display:none !important;}
+    .reportview-container .sidebar-content {background-color: #f1f3f4;}
+    
+    /* Ortiqcha bo'shliqlarni yo'qotish */
+    .element-container {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    
+    /* Login sahifasidagi ortiqcha bo'shliqni yo'qotish */
+    .login-subtitle + div {
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+    }
+    
+    /* Barcha bo'sh div'larni yashirish */
+    div:empty {
+        display: none !important;
+    }
+    
+    /* Container'lar orasidagi ortiqcha bo'shliqni kamaytirish */
+    .block-container {
+        padding-top: 1rem !important;
+        padding-bottom: 0rem !important;
+    }
 </style>
 """, unsafe_allow_html=True)
+
+
 
 # Parol tekshirish funksiyasi
 def check_password():
@@ -139,7 +293,8 @@ def check_password():
     # Login form
     st.markdown("""
     <div class="login-container">
-        <div class="login-title">📊 Import Analytics Dashboard</div>
+        <div class="login-title">📊 Customs Value Analytics</div>
+        <div class="login-subtitle">Bojxona auditi boshqarmasi</div>
         <div class="login-form">
     """, unsafe_allow_html=True)
     
@@ -164,7 +319,9 @@ def check_password():
             key="code_input"
         )
         
-        if st.button("🚀 Tizimga kirish"):
+        # Login button container
+        st.markdown('<div class="login-button">', unsafe_allow_html=True)
+        if st.button("🚀 Tizimga kirish", key="login_button", use_container_width=True):
             if password == "admin123" and secret_code == "2025":
                 st.session_state["password_correct"] = True
                 st.success("✅ Muvaffaqiyatli kirildi!")
@@ -172,6 +329,7 @@ def check_password():
             else:
                 st.error("❌ Parol yoki maxfiy kod noto'g'ri!")
                 st.warning("💡 To'g'ri ma'lumotlarni kiriting")
+        st.markdown('</div>', unsafe_allow_html=True)
     
     st.markdown("</div></div>", unsafe_allow_html=True)
     return False
@@ -202,6 +360,58 @@ def load_data(file):
         return df
     except Exception as e:
         st.error(f"Fayl yuklashda xatolik: {str(e)}")
+        return None
+
+# Excel yuklab olish funksiyasi
+@st.cache_data
+def create_excel_download(df, section_name):
+    """Tahlil qilingan ma'lumotlarni Excel formatda tayyorlash"""
+    try:
+        from io import BytesIO
+        
+        # BytesIO buffer yaratish
+        output = BytesIO()
+        
+        # Excel writer yaratish
+        with pd.ExcelWriter(output, engine='openpyxl') as writer:
+            # Asosiy ma'lumotlar
+            df.to_excel(writer, sheet_name='Asosiy_Malumotlar', index=False)
+            
+            # Statistikalar
+            stats_df = pd.DataFrame({
+                'Ko\'rsatkich': ['Jami yozuvlar', 'O\'rtacha narx', 'Maksimal narx', 'Minimal narx', 'Standart og\'ish'],
+                'Qiymat': [
+                    len(df),
+                    f"${df['PRICE'].mean():.2f}",
+                    f"${df['PRICE'].max():.2f}",
+                    f"${df['PRICE'].min():.2f}",
+                    f"${df['PRICE'].std():.2f}"
+                ]
+            })
+            stats_df.to_excel(writer, sheet_name='Statistikalar', index=False)
+            
+            # Davlatlar bo'yicha tahlil
+            country_analysis = df.groupby('G34').agg({
+                'PRICE': ['count', 'mean', 'sum'],
+                'G38': 'sum'
+            }).round(2)
+            country_analysis.columns = ['Import_Soni', 'Ortacha_Narx', 'Jami_Qiymat', 'Jami_Ogirlik']
+            country_analysis.to_excel(writer, sheet_name='Davlatlar_Tahlili')
+            
+            # HS kodlar bo'yicha tahlil
+            hs_analysis = df.groupby('G33').agg({
+                'PRICE': ['count', 'mean', 'sum'],
+                'G38': 'sum'
+            }).round(2)
+            hs_analysis.columns = ['Import_Soni', 'Ortacha_Narx', 'Jami_Qiymat', 'Jami_Ogirlik']
+            hs_analysis.to_excel(writer, sheet_name='HS_Kodlar_Tahlili')
+        
+        # Buffer'ni qayta o'qish uchun boshiga o'tkazish
+        output.seek(0)
+        return output.getvalue()
+    
+    except Exception as e:
+        st.error(f"Excel fayl yaratishda xatolik: {str(e)}")
         return None
 
 # Demo ma'lumotlar yaratish
@@ -240,19 +450,135 @@ def create_demo_data():
     
     return pd.DataFrame(data)
 
-# Asosiy sarlavha
-st.markdown('<div class="main-header">📊 Import Analytics Dashboard</div>', unsafe_allow_html=True)
+# Header va logo
+col1, col2, col3 = st.columns([2, 3, 1])
+
+with col1:
+    st.markdown("")  # Bo'sh joy
+
+with col2:
+    st.markdown('<div class="main-header">📊 Customs Value Analytics</div>', unsafe_allow_html=True)
+    st.markdown('<div style="text-align: center; font-size: 1.2rem; color: #666; margin-top: -0.5rem;">Bojxona auditi boshqarmasi</div>', unsafe_allow_html=True)
+
+with col3:
+    # Bojxona logosi - loyihadagi st.image.png faylini ishlatish
+    try:
+        st.image("st.image.png", width=120)
+    except:
+        # Agar fayl topilmasa, SVG logoni ko'rsatish
+        st.markdown("""
+        <div style="text-align: right; margin-top: 0.5rem;">
+            <svg width="90" height="90" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+                <!-- Tashqi yulduz (8 qirrali) -->
+                <polygon points="60,10 70,45 105,45 78,68 88,103 60,85 32,103 42,68 15,45 50,45" 
+                         fill="#C8C8C8" stroke="#A0A0A0" stroke-width="2"/>
+                
+                <!-- Ichki doira - yashil -->
+                <circle cx="60" cy="60" r="32" fill="#4A7C59" stroke="#2F4F2F" stroke-width="2"/>
+                
+                <!-- Oq ichki doira -->
+                <circle cx="60" cy="60" r="28" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="1"/>
+                
+                <!-- Dunyoning konturi -->
+                <g transform="translate(60,60)">
+                    <!-- Kontinentlar -->
+                    <path d="M-20,-5 Q-15,-10 -10,-8 Q-5,-12 0,-10 Q5,-15 10,-12 Q15,-8 20,-5" 
+                          fill="#8B4513" opacity="0.7"/>
+                    <path d="M-18,5 Q-10,8 -5,5 Q0,8 5,5 Q10,3 18,8" 
+                          fill="#8B4513" opacity="0.7"/>
+                    <path d="M-15,15 Q-8,18 0,15 Q8,18 15,15" 
+                          fill="#8B4513" opacity="0.7"/>
+                </g>
+                
+                <!-- Tibbiy belgi (Caduceus) markazi -->
+                <g transform="translate(60,60)">
+                    <!-- Asosiy tayoq -->
+                    <line x1="0" y1="-20" x2="0" y2="20" stroke="#FFD700" stroke-width="3"/>
+                    
+                    <!-- Qanotlar -->
+                    <path d="M-12,-15 Q-20,-18 -15,-10 Q-8,-5 0,-12" fill="#FFD700" opacity="0.9"/>
+                    <path d="M12,-15 Q20,-18 15,-10 Q8,-5 0,-12" fill="#FFD700" opacity="0.9"/>
+                    
+                    <!-- Chap ilon -->
+                    <path d="M-4,-15 Q-10,-8 -4,0 Q2,8 -4,15" 
+                          fill="none" stroke="#FFD700" stroke-width="2.5" stroke-linecap="round"/>
+                    
+                    <!-- O'ng ilon -->
+                    <path d="M4,-15 Q10,-8 4,0 Q-2,8 4,15" 
+                          fill="none" stroke="#FFD700" stroke-width="2.5" stroke-linecap="round"/>
+                    
+                    <!-- Ustki to'p -->
+                    <circle cx="0" cy="-20" r="3" fill="#FFD700"/>
+                    
+                    <!-- Ilon boshlari -->
+                    <circle cx="-4" cy="-15" r="1.5" fill="#FFD700"/>
+                    <circle cx="4" cy="-15" r="1.5" fill="#FFD700"/>
+                </g>
+                
+                <!-- Atrofdagi matn -->
+                <path id="top-curve" d="M 20 60 A 40 40 0 0 1 100 60" fill="none"/>
+                <text font-family="Arial" font-size="9" font-weight="bold" fill="#4A7C59">
+                    <textPath href="#top-curve" startOffset="5%">
+                        O'ZBEKISTON RESPUBLIKASI
+                    </textPath>
+                </text>
+                
+                <path id="bottom-curve" d="M 100 60 A 40 40 0 0 1 20 60" fill="none"/>
+                <text font-family="Arial" font-size="9" font-weight="bold" fill="#4A7C59">
+                    <textPath href="#bottom-curve" startOffset="5%">
+                        DAVLAT BOJXONA XIZMATI
+                    </textPath>
+                </text>
+            </svg>
+        </div>
+        """, unsafe_allow_html=True)
 
 # Logout button
 col1, col2, col3 = st.columns([5, 1, 1])
 with col3:
-    if st.button("🚪 Chiqish"):
+    st.markdown('<div class="logout-btn">', unsafe_allow_html=True)
+    if st.button("🚪 Chiqish", key="logout_btn"):
         st.session_state["password_correct"] = False
         st.rerun()
+    st.markdown('</div>', unsafe_allow_html=True)
 
 # Sidebar - TAHLIL TURLARI
 st.sidebar.header("📊 TAHLIL TURLARI")
 st.sidebar.markdown("---")
+
+# Session state uchun sahifa holati
+if 'selected_section' not in st.session_state:
+    st.session_state.selected_section = "CANDLESTICK"
+
+# Sidebar buttons
+with st.sidebar:
+    st.markdown('<div class="sidebar-buttons">', unsafe_allow_html=True)
+    
+    if st.button("🕯️ CANDLESTICK"):
+        st.session_state.selected_section = "CANDLESTICK"
+    
+    if st.button("📈 YIELD CURVES"):
+        st.session_state.selected_section = "YIELD CURVES"
+    
+    if st.button("📊 GRAFIK"):
+        st.session_state.selected_section = "GRAFIK"
+    
+    if st.button("📋 USTUNLI DIAGRAMMA"):
+        st.session_state.selected_section = "USTUNLI DIAGRAMMA"
+    
+    if st.button("📉 HISTOGRAM"):
+        st.session_state.selected_section = "HISTOGRAM"
+    
+    if st.button("🌍 SUNBURST"):
+        st.session_state.selected_section = "SUNBURST"
+    
+    if st.button("🕒 TIME GROUP"):
+        st.session_state.selected_section = "TIME GROUP"
+    
+    st.markdown('</div>', unsafe_allow_html=True)
+
+# Tanlangan bo'limni olish
+selected_section = st.session_state.selected_section
 
 # Ma'lumotlarni olish
 if 'uploaded_file' not in st.session_state:
@@ -342,11 +668,6 @@ with col3:
     st.metric("Eng yuqori narx", f"${filtered_df['PRICE'].max():.2f}")
 with col4:
     st.metric("Eng past narx", f"${filtered_df['PRICE'].min():.2f}")
-
-# Sidebar da bo'limlar tanlash
-st.sidebar.header("📈 BO'LIMLAR")
-sections = ["CANDLESTICK", "YIELD CURVES", "GRAFIK", "USTUNLI DIAGRAMMA", "HISTOGRAM", "SUNBURST", "TIME GROUP"]
-selected_section = st.sidebar.radio("Bo'limni tanlang:", sections)
 
 # CANDLESTICK BO'LIMI
 if selected_section == "CANDLESTICK":
@@ -593,6 +914,18 @@ if selected_section == "CANDLESTICK":
         })
         st.dataframe(price_levels, use_container_width=True)
         
+        # Excel yuklab olish buttoni
+        st.markdown("---")
+        excel_data = create_excel_download(filtered_df, "CANDLESTICK")
+        if excel_data:
+            st.download_button(
+                label="📊 Excel formatda yuklab olish",
+                data=excel_data,
+                file_name=f"candlestick_tahlil_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                use_container_width=True
+            )
+        
     else:
         st.warning("Tanlangan filtrlar bo'yicha ma'lumot topilmadi")
 
@@ -689,82 +1022,17 @@ elif selected_section == "YIELD CURVES":
         
         st.plotly_chart(fig, use_container_width=True)
         
-        # Jadval ma'lumotlari
-        st.subheader("📊 Batafsil Narx Jadvali")
-        
-        # Jadval yaratish
-        table_data = []
-        for period in periods:
-            if period == '1M':
-                max_val = max_price * 0.95
-                avg_val = avg_price * 0.98
-                min_val = min_price * 1.05
-            elif period == '3M':
-                max_val = max_price * 0.96
-                avg_val = avg_price * 0.99
-                min_val = min_price * 1.04
-            elif period == '6M':
-                max_val = max_price * 0.97
-                avg_val = avg_price * 0.995
-                min_val = min_price * 1.03
-            elif period == '1Y':
-                max_val = max_price * 0.98
-                avg_val = avg_price * 1.0
-                min_val = min_price * 1.02
-            elif period == '2Y':
-                max_val = max_price * 0.99
-                avg_val = avg_price * 1.005
-                min_val = min_price * 1.01
-            elif period == '3Y':
-                max_val = max_price * 1.0
-                avg_val = avg_price * 1.01
-                min_val = min_price * 1.0
-            elif period == '5Y':
-                max_val = max_price * 1.01
-                avg_val = avg_price * 1.015
-                min_val = min_price * 0.99
-            elif period == '7Y':
-                max_val = max_price * 1.02
-                avg_val = avg_price * 1.02
-                min_val = min_price * 0.98
-            elif period == '10Y':
-                max_val = max_price * 1.03
-                avg_val = avg_price * 1.025
-                min_val = min_price * 0.97
-            else:  # 20Y
-                max_val = max_price * 1.04
-                avg_val = avg_price * 1.03
-                min_val = min_price * 0.96
-            
-            table_data.append({
-                'Davr': period,
-                'Maksimal ($)': f"${max_val:.2f}",
-                'O\'rtacha ($)': f"${avg_val:.2f}",
-                'Minimal ($)': f"${min_val:.2f}"
-            })
-        
-        yield_df = pd.DataFrame(table_data)
-        st.dataframe(yield_df, use_container_width=True)
-        
-        # Tahlil
-        st.subheader("📈 Tahlil Xulosa")
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            st.info("""
-            **🟢 Maksimal Narx Trendi:**
-            - Qisqa muddatda pastroq
-            - Uzoq muddatda yuqori o'sish
-            - Investitsiya uchun yaxshi imkoniyat
-            """)
-            
-        with col2:
-            st.warning("""
-            **📊 Umumiy Xulosa:**
-            - Narxlar vaqt o'tishi bilan o'zgaruvchan
-            - Uzoq muddatli investitsiya samarali
-            - Risk boshqaruvi muhim
-            """)
+        # Excel yuklab olish buttoni
+        st.markdown("---")
+        excel_data = create_excel_download(filtered_df, "YIELD_CURVES")
+        if excel_data:
+            st.download_button(
+                label="📊 Excel formatda yuklab olish",
+                data=excel_data,
+                file_name=f"yield_curves_tahlil_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                use_container_width=True
+            )
     else:
         st.warning("Tanlangan filtrlar bo'yicha ma'lumot topilmadi")
 
@@ -815,6 +1083,18 @@ elif selected_section == "GRAFIK":
         )
         
         st.plotly_chart(fig, use_container_width=True)
+        
+        # Excel yuklab olish buttoni
+        st.markdown("---")
+        excel_data = create_excel_download(filtered_df, "GRAFIK")
+        if excel_data:
+            st.download_button(
+                label="📊 Excel formatda yuklab olish",
+                data=excel_data,
+                file_name=f"grafik_tahlil_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                use_container_width=True
+            )
     else:
         st.warning("Tanlangan filtrlar bo'yicha ma'lumot topilmadi")
 
@@ -846,6 +1126,18 @@ elif selected_section == "USTUNLI DIAGRAMMA":
         # Jadval ko'rinishi
         st.subheader("📋 Batafsil ma'lumot")
         st.dataframe(hs_price_avg.round(2))
+        
+        # Excel yuklab olish buttoni
+        st.markdown("---")
+        excel_data = create_excel_download(filtered_df, "USTUNLI_DIAGRAMMA")
+        if excel_data:
+            st.download_button(
+                label="📊 Excel formatda yuklab olish",
+                data=excel_data,
+                file_name=f"ustunli_diagramma_tahlil_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                use_container_width=True
+            )
     else:
         st.warning("Tanlangan filtrlar bo'yicha ma'lumot topilmadi")
 
@@ -883,6 +1175,18 @@ elif selected_section == "HISTOGRAM":
             st.metric("Mediana", f"${filtered_df['PRICE'].median():.2f}")
         with col3:
             st.metric("Mod", f"${filtered_df['PRICE'].mode().iloc[0]:.2f}" if not filtered_df['PRICE'].mode().empty else "N/A")
+        
+        # Excel yuklab olish buttoni
+        st.markdown("---")
+        excel_data = create_excel_download(filtered_df, "HISTOGRAM")
+        if excel_data:
+            st.download_button(
+                label="📊 Excel formatda yuklab olish",
+                data=excel_data,
+                file_name=f"histogram_tahlil_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                use_container_width=True
+            )
     else:
         st.warning("Tanlangan filtrlar bo'yicha ma'lumot topilmadi")
 
@@ -914,6 +1218,18 @@ elif selected_section == "SUNBURST":
         )
         fig2.update_layout(height=600)
         st.plotly_chart(fig2, use_container_width=True)
+        
+        # Excel yuklab olish buttoni
+        st.markdown("---")
+        excel_data = create_excel_download(filtered_df, "SUNBURST")
+        if excel_data:
+            st.download_button(
+                label="📊 Excel formatda yuklab olish",
+                data=excel_data,
+                file_name=f"sunburst_tahlil_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                use_container_width=True
+            )
     else:
         st.warning("Tanlangan filtrlar bo'yicha ma'lumot topilmadi")
 
@@ -993,11 +1309,23 @@ elif selected_section == "TIME GROUP":
             with col2:
                 trend_color = "green" if count_trend > 0 else "red"
                 st.markdown(f"**Hajm trendi:** <span style='color:{trend_color}'>{count_trend:+}</span>", unsafe_allow_html=True)
+        
+        # Excel yuklab olish buttoni
+        st.markdown("---")
+        excel_data = create_excel_download(filtered_df, "TIME_GROUP")
+        if excel_data:
+            st.download_button(
+                label="📊 Excel formatda yuklab olish",
+                data=excel_data,
+                file_name=f"time_group_tahlil_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                use_container_width=True
+            )
     else:
         st.warning("Tanlangan filtrlar bo'yicha ma'lumot topilmadi")
 
-# Footer
+# Import Analytics Dashboard footer
 st.sidebar.markdown("---")
-st.sidebar.markdown("📊 **Import Analytics Dashboard**")
+st.sidebar.markdown("📊 **Customs Value Analytics**")
 st.sidebar.markdown("Tashkent, 2025")
 st.sidebar.markdown("Real vaqtda monitoring va tahlil")
