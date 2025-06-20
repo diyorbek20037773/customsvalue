@@ -1,263 +1,251 @@
-# customsvalue
-# 📊 Import Analytics Dashboard
+# 📊 Customs Value Analytics
 
-> **Professional import ma'lumotlarini tahlil qilish va vizualizatsiya qilish tizimi**
+**Professional Bojxona Qiymatlari Tahlil Tizimi**
 
-Import Analytics Dashboard - bu import ma'lumotlarini real vaqtda tahlil qilish, vizualizatsiya qilish va hisobot yaratish uchun mo'ljallangan professional veb-ilovasi. Streamlit va Plotly texnologiyalari asosida yaratilgan.
+Real-time bojxona ma'lumotlarini visualization qilish va tahlil qilish uchun mo'ljallangan professional dashboard.
 
-## ✨ Asosiy Xususiyatlar
+![Dashboard Preview](https://via.placeholder.com/800x400/1f77b4/ffffff?text=Customs+Value+Analytics+Dashboard)
 
-### 🔐 Xavfsizlik
-- **Ikki bosqichli autentifikatsiya** (parol + maxfiy kod)
-- **Himoyalangan kirish tizimi**
-- **Session boshqaruvi**
+## 🚀 **Asosiy Imkoniyatlar**
 
-### 📈 Professional Tahlil Bo'limlari
-- **CANDLESTICK** - TradingView uslubidagi professional narx tahlili
-- **YIELD CURVES** - Narx egri chiziqlari va trend tahlili
-- **GRAFIK** - Vaqt bo'yicha narx monitoring
-- **USTUNLI DIAGRAMMA** - HS kodlar bo'yicha taqqoslash
-- **HISTOGRAM** - Narx taqsimoti tahlili
-- **SUNBURST** - Davlat va mahsulot ulushi
-- **TIME GROUP** - Vaqtga asoslangan analitika
+### 📈 **4 xil Professional Tahlil:**
+- **🕯️ CANDLESTICK** - Moliyaviy bozorlar uslubida OHLC grafiklar
+- **📊 GRAFIK** - Vaqt bo'yicha birlik narx monitoring
+- **🌍 SUNBURST** - Davlat va HS kodlar bo'yicha ulush diagrammasi  
+- **🕒 TIME GROUP** - Kunlik/Haftalik/Oylik guruhlangan tahlil
 
-### 🔍 Filtrlash Imkoniyatlari
-- **34-GRAFA** - Davlat bo'yicha filtrlash
-- **33-GRAFA** - HS kod bo'yicha filtrlash
-- **Vaqt oralig'i** - Sana diapazoni bo'yicha filtrlash
+### 🔍 **Progressive Filtering:**
+- **15-GRAFA** - Jonatilgan mamlakat
+- **34-GRAFA** - Ishlab chiqarilgan mamlakat
+- **33-GRAFA** - HS kod
+- **METOD** - Qiymat aniqlash metodi
+- **VAQT** - DAN / GACHA sana oralig'i
 
-### 📊 Texnik Indikatorlar
-- **RSI (Relative Strength Index)** - 14 davrlik
-- **Bollinger Bands** - Yuqori/pastki bandlar
-- **Moving Averages** - MA20, MA50
-- **Volume Analysis** - Hajm tahlili
+### 📊 **Smart Metrics:**
+- **O'RTACHA QIYMAT** - Og'irlikka asoslangan weighted average
+- **Jami og'irlik** - Real kg hisobi
+- **Jami bojxona qiymati** - To'liq moliyaviy hisobot
 
-## 🚀 O'rnatish va Ishga Tushirish
+## 🛠️ **Texnik Talablar**
 
-### Talablar
+### **Python versiyasi:**
 ```
-Python 3.8+
-pip package manager
+Python 3.8+ (tavsiya etiladi: 3.10+)
 ```
 
-### 1. Repository'ni klonlash
+### **Kerakli kutubxonalar:**
 ```bash
-git clone https://github.com/your-username/import-analytics-dashboard.git
-cd import-analytics-dashboard
+pip install streamlit pandas plotly numpy openpyxl
 ```
 
-### 2. Virtual environment yaratish
+## 📦 **O'rnatish va Ishga Tushirish**
+
+### 1. **Repository'ni klonlash:**
+```bash
+git clone https://github.com/username/customs-value-analytics.git
+cd customs-value-analytics
+```
+
+### 2. **Virtual environment yaratish:**
 ```bash
 python -m venv venv
-source venv/bin/activate  # Linux/Mac uchun
+source venv/bin/activate  # Linux/Mac
 # yoki
-venv\Scripts\activate     # Windows uchun
+venv\Scripts\activate     # Windows
 ```
 
-### 3. Dependency'larni o'rnatish
+### 3. **Dependencieslarni o'rnatish:**
 ```bash
 pip install -r requirements.txt
 ```
 
-### 4. Ilovani ishga tushirish
+### 4. **Dasturni ishga tushirish:**
 ```bash
 streamlit run app.py
 ```
 
-### 5. Brauzerda ochish
+### 5. **Brauzerda ochish:**
 ```
 http://localhost:8501
 ```
 
-## 📋 Requirements.txt
-
-```txt
-streamlit>=1.28.0
-pandas>=2.0.0
-plotly>=5.15.0
-numpy>=1.24.0
-python-dateutil>=2.8.2
-openpyxl>=3.1.0
-```
-
-## 🔑 Kirish Ma'lumotlari
-
-**Demo kirish uchun:**
-- **Parol:** `admin123`
-- **Maxfiy kod:** `2025`
-
-> ⚠️ **Muhim:** Production muhitida bu ma'lumotlarni o'zgartiring!
-
-## 📂 Fayl Strukturasi
+## 🔐 **Kirish Ma'lumotlari**
 
 ```
-import-analytics-dashboard/
-│
-├── app.py                      # Asosiy Streamlit ilovasi
-├── requirements.txt            # Python dependency'lari
-├── README.md                  # Loyiha hujjatlari
-│
-├── data/                      # Ma'lumotlar jildi
-│   ├── sample_data.csv        # Namuna ma'lumotlar
-│   └── import_data_1000.csv   # Test ma'lumotlari
-│
-├── utils/                     # Yordamchi funksiyalar
-│   ├── __init__.py
-│   ├── data_loader.py         # Ma'lumot yuklash
-│   ├── analytics.py           # Tahlil funksiyalari
-│   └── visualizations.py     # Vizualizatsiya funksiyalari
-│
-├── config/                    # Konfiguratsiya fayllari
-│   ├── __init__.py
-│   └── settings.py           # Sozlamalar
-│
-└── assets/                    # Statik fayllar
-    ├── images/               # Rasmlar
-    └── styles/               # CSS stillar
+Parol: admin123
+Maxfiy kod: 2025
 ```
 
-## 📊 Ma'lumotlar Formati
+## 📂 **Qo'llab-quvvatlanadigan Fayl Formatlari**
 
-### Talab qilinadigan ustunlar:
+| Format | Tavsif |
+|--------|--------|
+| `.csv` | Comma-separated values |
+| `.xlsx` | Excel workbook |
+| `.xls` | Legacy Excel format |
 
-| Ustun | Tavsif | Format | Misol |
-|-------|--------|---------|--------|
-| `G34` | Davlat kodi | String | USA, CHN, DEU |
-| `G33` | HS kodi | String | 8517, 8471, 8473 |
-| `G38` | Og'irlik (kg) | Float | 374.67 |
-| `PRICE` | Asosiy narx ($) | Float | 37.45 |
-| `OPEN` | Ochilish narxi ($) | Float | 38.12 |
-| `HIGH` | Eng yuqori narx ($) | Float | 42.34 |
-| `LOW` | Eng past narx ($) | Float | 35.78 |
-| `CLOSE` | Yopilish narxi ($) | Float | 39.87 |
-| `INSTIME` | Sana va vaqt | String | 15.01.2024 10:30:45 |
+## 📋 **Kerakli Data Ustunlari**
 
-### Namuna CSV:
-```csv
-G34,G33,G38,PRICE,OPEN,HIGH,LOW,CLOSE,INSTIME
-USA,8517,374.67,37.45,38.12,42.34,35.78,39.87,15.01.2024 10:30:45
-CHN,8471,892.13,89.23,86.45,95.67,84.12,91.34,22.01.2024 14:22:15
-```
-
-## 🎯 Foydalanish Bo'yicha Ko'rsatmalar
-
-### 1. Tizimga Kirish
-1. Veb-saytga o'ting
-2. **Parol** va **Maxfiy kod** kiriting
-3. **"Tizimga kirish"** tugmasini bosing
-
-### 2. Ma'lumot Yuklash
-1. **"Faylni yuklash"** bo'limidan CSV/Excel fayl tanlang
-2. Fayl yuklangandan so'ng ma'lumotlar avtomatik tahlil qilinadi
-
-### 3. Filtrlardan Foydalanish
-- **34-GRAFA:** Davlat bo'yicha filtrlash
-- **33-GRAFA:** HS kod bo'yicha filtrlash  
-- **VAQT ORALIG'I:** Sana diapazoni tanlash
-
-### 4. Tahlil Bo'limlarini Tanlash
-Chap sidebar'dan kerakli tahlil turini tanlang:
-- **CANDLESTICK:** Professional savdo grafigi
-- **YIELD CURVES:** Narx egri chiziqlari
-- **GRAFIK:** Oddiy chiziqli grafik
-- Va boshqalar...
-
-## 🔧 Konfiguratsiya
-
-### Parolni O'zgartirish
-`app.py` faylida quyidagi qatorni toping:
 ```python
-if password == "admin123" and secret_code == "2025":
+# Majburiy ustunlar:
+"Страна отправления"     # Jonatilgan mamlakat
+"31-Страна происхождения" # Ishlab chiqarilgan mamlakat  
+"ТИФ ТН КОДИ"            # HS kod
+"За.ед. из.$"            # Birlik narx ($/kg)
+"Нетто"                  # Og'irlik (kg)
+"metod"                  # Qiymat aniqlash metodi
+"С графа"                # Sana (dd.mm.yyyy)
 ```
 
-Yangi parol va kodga o'zgartiring:
+## 🧮 **O'rtacha Qiymat Algoritmi**
+
 ```python
-if password == "yangi_parol" and secret_code == "yangi_kod":
+# Weighted Average Formula:
+def calculate_weighted_average_price(df):
+    total_value = df['Bojxona_Qiymati'].sum()   # SUMM(За.ед. из.$ × Нетто)
+    total_weight = df['Нетто'].sum()            # SUMM(og'irlik)
+    return total_value / total_weight           # Weighted average
 ```
 
-### Tema Sozlamalari
-CSS stillarini o'zgartirish uchun `app.py` faylidagi `st.markdown()` bo'limini tahrirlang.
+**Nima uchun weighted average?**
+- Real bojxona amaliyotida standart
+- Og'ir partiyalar ko'proq ta'sir qiladi
+- Moliyaviy hisobotlarda aniq natija
 
-## 📈 Demo Ma'lumotlar
+## 📊 **Data Visualization Turlari**
 
-Loyiha bilan birga 1000 ta sintetik ma'lumot taqdim etiladi:
-- **48 ta davlat** ma'lumotlari
-- **56 ta HS kod** bo'yicha mahsulotlar
-- **2024 yil** davomidagi ma'lumotlar  
-- **OHLC** narx ma'lumotlari
-- **Hajm** va **og'irlik** ma'lumotlari
+### **1. CANDLESTICK:**
+- Professional moliyaviy grafiklar
+- OHLC (Open, High, Low, Close) ma'lumotlar
+- Moving averages (MA20)
+- Volume analysis
+- To'g'ri ketma-ketlik (close → next open)
 
-## 🛠️ Texnologiyalar
+### **2. GRAFIK:**
+- Real-time line charts
+- Statistik chiziqlar (max, min, average)
+- Interactive markers
+- Time-series analysis
 
-- **[Streamlit](https://streamlit.io/)** - Veb-ilova framework
-- **[Plotly](https://plotly.com/)** - Interaktiv grafiklar
-- **[Pandas](https://pandas.pydata.org/)** - Ma'lumotlar tahlili
-- **[NumPy](https://numpy.org/)** - Matematik hisoblashlar
-- **[Python](https://python.org/)** - Asosiy dasturlash tili
+### **3. SUNBURST:**
+- Hierarhik ma'lumotlar ko'rinishi
+- Davlat → HS kod drill-down
+- Interactive hover effects
+- Treemap alternativasi
 
-## 🎨 Xususiyatlar
+### **4. TIME GROUP:**
+- Kunlik/Haftalik/Oylik guruhlash
+- Trend analysis
+- Multi-level charts
+- Statistical summaries
 
-### Professional Dizayn
-- **Qora tema** (TradingView uslubi)
-- **Responsive layout**
-- **Professional metriklar**
-- **Interaktiv grafiklar**
+## 🔄 **Progressive Filtering Logic**
 
-### Texnik Indikatorlar
-- **RSI** - Sotib olish/sotish signallari
-- **Bollinger Bands** - Volatillik ko'rsatkichi
-- **Moving Averages** - Trend yo'nalishi
-- **Volume Analysis** - Bozor faolligi
+```python
+# Filtrlar ketma-ket qo'llanadi:
+1. 15-GRAFA tanlandi → 34-GRAFA faqat shu davlatdagi variantlar
+2. 34-GRAFA tanlandi → 33-GRAFA faqat qolgan variantlar  
+3. 33-GRAFA tanlandi → METOD faqat qolgan variantlar
+4. VAQT filtri oxirida qo'llanadi
+```
 
-### Eksport Imkoniyatlari
-- **CSV format** - Ma'lumotlar eksporti
-- **PNG/SVG** - Grafik saqلاش
-- **PDF hisobot** - To'liq tahlil
+## 📤 **Export Imkoniyatlari**
 
-## 🚀 Rivojlantirish Rejalari
+- **Excel format** - barcha tahlil turlari uchun
+- **Multi-sheet workbook:**
+  - Asosiy ma'lumotlar
+  - Statistikalar  
+  - Davlatlar tahlili
+  - HS kodlar tahlili
 
-### V2.0 Xususiyatlari
-- [ ] **Real-time ma'lumotlar** integratsiyasi
-- [ ] **API endpoints** yaratish  
-- [ ] **Multi-user** tizimi
-- [ ] **Dashboard customization**
-- [ ] **Email hisobotlar**
-- [ ] **Advanced ML** tahlil
+## 🎨 **UI/UX Features**
 
-### V3.0 Xususiyatlari  
-- [ ] **Mobile app** versiyasi
-- [ ] **Multi-language** qo'llab-quvvatlash
-- [ ] **Cloud deployment**
-- [ ] **Enterprise features**
+### **Professional Design:**
+- Dark theme support
+- Responsive layout
+- Animated buttons
+- Loading states
+- Error handling
 
-## 🤝 Hissa Qo'shish
+### **User Experience:**
+- Session state management
+- Cache optimization  
+- Real-time filtering
+- Interactive tooltips
+- Progress indicators
 
-1. **Fork** qiling
-2. **Feature branch** yarating (`git checkout -b feature/AmazingFeature`)
-3. **Commit** qiling (`git commit -m 'Add some AmazingFeature'`)
-4. **Push** qiling (`git push origin feature/AmazingFeature`)
-5. **Pull Request** oching
+## 🔧 **Troubleshooting**
 
-## 📄 Litsenziya
+### **Umumiy muammolar:**
 
-Bu loyiha **MIT License** ostida tarqatiladi. Batafsil ma'lumot uchun `LICENSE` faylini ko'ring.
+**1. Port band bo'lsa:**
+```bash
+streamlit run app.py --server.port 8502
+```
 
-## 📞 Aloqa
+**2. Memory error (katta fayllar):**
+```bash
+# Fayl hajmini kamaytiring yoki server quvvatini oshiring
+```
 
-**Loyiha Muallifi:** [DIYORBEK IBRAGIMOV]
-- 📧 **Email:** diyorbek20037377@gmail.com
-- 💼 **LinkedIn:** [[linkedin.com/in/yourprofile](https://www.linkedin.com/in/diyorbek-ibragimov-757830338/)]([https://linkedin.com/in/yourprofile](https://www.linkedin.com/in/diyorbek-ibragimov-757830338/))
-- 🐙 **GitHub:** [github.com/yourusername](https://github.com/yourusername)
+**3. Date parsing errors:**
+```python
+# С графа ustunida turli sana formatlarini tekshiring
+```
 
-**Loyiha Havolasi:** [https://github.com/diyorbek20037773/customsvalue/upload/main](https://github.com/diyorbek20037773/import-analytics-dashboard)
+### **Performance Optimization:**
 
-## 🙏 Minnatdorchilik
+```python
+# Katta datasetlar uchun:
+@st.cache_data  # Automatic caching
+def load_data(file):
+    # Data loading optimized
+```
 
-- **Streamlit** jamoasiga ajoyib framework uchun
-- **Plotly** jamoasiga professional grafiklar uchun
-- **Python** hamjamiyatiga kuchli ecosystem uchun
-- **Open Source** hamjamiyatiga ilhom uchun
+## 📈 **Real Use Cases**
 
+### **Bojxona Auditi:**
+- Import qiymatlari monitoring
+- Suspicious pricing detection
+- Trend analysis
+- Country comparison
 
+### **Trade Analytics:**
+- Market intelligence
+- Price benchmarking  
+- Seasonal patterns
+- Risk assessment
 
-*Bu README 2025 yil yanvarida yaratilgan va doimiy ravishda yangilanib turadi.*
+### **Compliance Monitoring:**
+- WTO requirements
+- Transfer pricing
+- Documentation audit
+- Statistical reporting
+
+## 🤝 **Contributing**
+
+1. Fork the project
+2. Create feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit changes (`git commit -m 'Add AmazingFeature'`)
+4. Push to branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## 📄 **License**
+
+Bu loyiha MIT License ostida tarqatiladi. Batafsil ma'lumot uchun `LICENSE` faylini ko'ring.
+
+## 👨‍💻 **Developer**
+
+**Customs Value Analytics Team**
+- 📧 Email: diyorbek20037377@gmail.com
+- 📍 Location: Tashkent, Uzbekistan
+
+## 🏢 **Organization**
+
+**O'zbekiston Respublikasi Davlat Bojxona Xizmati**
+- Bojxona Auditi Boshqarmasi
+-Bojxona instituti
+
+---
+
+### **🎯 Professional Dashboard for Customs Value Analysis**
