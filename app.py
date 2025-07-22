@@ -49,72 +49,6 @@ st.markdown("""
     .sidebar .sidebar-content {
         background-color: #f1f3f4;
     }
-    .login-container {
-        max-width: 450px;
-        margin: 3rem auto;
-        padding: 3rem;
-        background: #0e1117;
-        border-radius: 20px;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-        color: white;
-        text-align: center;
-        border: 1px solid #333;
-    }
-    .login-title {
-        font-size: 2.8rem;
-        font-weight: bold;
-        margin-bottom: 1rem;
-        color: #1f77b4;
-    }
-    .login-subtitle {
-        font-size: 1.2rem;
-        margin-bottom: 0rem !important;
-        opacity: 0.8;
-        color: #ccc;
-    }
-    .login-form {
-        background: rgba(255, 255, 255, 0.1);
-        padding: 2rem;
-        border-radius: 15px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        margin-top: 1rem;
-    }
-    
-    /* Login tugmasi - yashil rangda */
-    .login-button button,
-    button[key="login_button"],
-    div[data-testid="stButton"] button:contains("Tizimga kirish"),
-    div[data-testid="stButton"] button:contains("🚀") {
-        background: #08FF08 !important;
-        color: white !important;
-        border: none !important;
-        border-radius: 10px !important;
-        padding: 15px 30px !important;
-        font-size: 16px !important;
-        font-weight: bold !important;
-        cursor: pointer !important;
-        transition: all 0.3s ease !important;
-        width: 100% !important;
-        margin-top: 1rem !important;
-    }
-    .login-button button:hover,
-    button[key="login_button"]:hover,
-    div[data-testid="stButton"] button:contains("Tizimga kirish"):hover,
-    div[data-testid="stButton"] button:contains("🚀"):hover {
-        background: #06CC06 !important;
-        transform: translateY(-2px) !important;
-        box-shadow: 0 10px 20px rgba(8, 255, 8, 0.3) !important;
-    }
-    
-    /* Input maydonlari */
-    .stTextInput > div > div > input {
-        background: rgba(255, 255, 255, 0.9) !important;
-        border: none !important;
-        border-radius: 10px !important;
-        padding: 15px !important;
-        color: #333 !important;
-        font-size: 16px !important;
-    }
     
     /* Sidebar tugmalari uchun effekt */
     .stButton > button {
@@ -173,31 +107,6 @@ st.markdown("""
         100% { background-position: 0 0; }
     }
     
-    /* Chiqish tugmasi - qizil rangda */
-    .logout-btn button,
-    button[key="logout_btn"],
-    div[data-testid="stButton"] button:contains("Chiqish"),
-    div[data-testid="stButton"] button:contains("🚪") {
-        background: #FE0808 !important;
-        color: white !important;
-        border: none !important;
-        border-radius: 10px !important;
-        padding: 10px 20px !important;
-        font-size: 14px !important;
-        font-weight: bold !important;
-        cursor: pointer !important;
-        transition: all 0.3s ease !important;
-        width: 100% !important;
-    }
-    .logout-btn button:hover,
-    button[key="logout_btn"]:hover,
-    div[data-testid="stButton"] button:contains("Chiqish"):hover,
-    div[data-testid="stButton"] button:contains("🚪"):hover {
-        background: #CC0606 !important;
-        transform: translateY(-2px) !important;
-        box-shadow: 0 8px 16px rgba(254, 8, 8, 0.3) !important;
-    }
-    
     /* Filtr konteynerlar */
     .filter-container {
         background-color: #f8f9fa;
@@ -229,12 +138,6 @@ st.markdown("""
         padding: 0 !important;
     }
     
-    /* Login sahifasidagi ortiqcha bo'shliqni yo'qotish */
-    .login-subtitle + div {
-        margin-top: 0 !important;
-        padding-top: 0 !important;
-    }
-    
     /* Barcha bo'sh div'larni yashirish */
     div:empty {
         display: none !important;
@@ -247,64 +150,6 @@ st.markdown("""
     }
 </style>
 """, unsafe_allow_html=True)
-
-# Parol tekshirish funksiyasi - tizimga kirish uchun
-def check_password():
-    """Parol va kod bilan kirish sistemasi"""
-    
-    if "password_correct" not in st.session_state:
-        st.session_state["password_correct"] = False
-
-    if st.session_state["password_correct"]:
-        return True
-
-    # Login form - kirish formasi
-    st.markdown("""
-    <div class="login-container">
-        <div class="login-title">📊 Customs Value Analytics</div>
-        <div class="login-subtitle">Bojxona auditi boshqarmasi</div>
-        <div class="login-form">
-    """, unsafe_allow_html=True)
-    
-    col1, col2, col3 = st.columns([1, 2, 1])
-    with col2:
-        st.markdown("#### 🔐 Xavfsiz kirish")
-        st.markdown("**Tizimga kirish uchun ma'lumotlarni kiriting:**")
-        
-        # Parol kiritish maydoni
-        password = st.text_input(
-            "Parol", 
-            type="password", 
-            placeholder="Parolni kiriting...",
-            key="password_input"
-        )
-        
-        # Maxfiy kod kiritish maydoni
-        secret_code = st.text_input(
-            "Maxfiy kod",
-            type="password",
-            placeholder="Maxfiy kodni kiriting...",
-            key="code_input"
-        )
-        
-        # Login tugmasi
-        st.markdown('<div class="login-button">', unsafe_allow_html=True)
-        if st.button("🚀 Tizimga kirish", key="login_button", use_container_width=True):
-            if password == "admin123" and secret_code == "2025":
-                st.session_state["password_correct"] = True
-                st.success("✅ Muvaffaqiyatli kirildi!")
-                st.rerun()
-            else:
-                st.error("❌ Parol yoki maxfiy kod noto'g'ri!")
-                st.warning("💡 To'g'ri ma'lumotlarni kiriting")
-        st.markdown('</div>', unsafe_allow_html=True)
-    
-    st.markdown("</div></div>", unsafe_allow_html=True)
-    return False
-
-# Agar parol noto'g'ri bo'lsa, dashboardni ko'rsatmaslik
-if not check_password():
-    st.stop()
 
 # Ma'lumotlarni yuklash funksiyasi - fayl o'qish va tayyorlash
 @st.cache_data
@@ -575,15 +420,6 @@ with col3:
             </svg>
         </div>
         """, unsafe_allow_html=True)
-
-# Chiqish tugmasi
-col1, col2, col3 = st.columns([5, 1, 1])
-with col3:
-    st.markdown('<div class="logout-btn">', unsafe_allow_html=True)
-    if st.button("🚪 Chiqish", key="logout_btn"):
-        st.session_state["password_correct"] = False
-        st.rerun()
-    st.markdown('</div>', unsafe_allow_html=True)
 
 # Sidebar - TAHLIL TURLARI
 st.sidebar.header("📊 TAHLIL TURLARI")
